@@ -1,0 +1,22 @@
+- name: Configure applications
+  block:
+    - name: Create Neovim config directory
+      ansible.builtin.file:
+        path: /etc/nvim
+        state: directory
+        mode: "0755"
+    - name: Set global Neovim configuration
+      ansible.builtin.copy:
+        src: files/init.lua
+        dest: /etc/nvim/init.lua
+        mode: "0644"
+    - name: Create system-wide Fastfetch config directory
+      ansible.builtin.file:
+        path: /etc/fastfetch
+        state: directory
+        mode: "0755"
+    - name: Set global Fastfetch configuration
+      ansible.builtin.copy:
+        src: files/config.jsonc
+        dest: /etc/fastfetch/config.jsonc
+        mode: "0644"

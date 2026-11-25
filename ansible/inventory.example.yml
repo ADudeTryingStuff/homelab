@@ -1,0 +1,31 @@
+---
+vps:
+  hosts:
+    hawk:
+      ansible_host: redacted
+    vulture:
+      ansible_host: redacted
+    eagle:
+      ansible_host: redacted
+rhel:
+  children:
+    dns:
+      hosts:
+        bbd-mgmt-1:
+          ansible_host: redacted
+proxmox:
+  hosts:
+    falcon:
+      ansible_host: redacted
+    crane:
+      ansible_host: redacted
+podman:
+  children:
+    vps:
+alma:
+  children:
+    vps:
+dnf:
+  children:
+    alma:
+    rhel:

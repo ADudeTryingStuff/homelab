@@ -1,0 +1,13 @@
+- name: Common configuration
+  hosts: alma
+  become: true
+  roles:
+    - base-packages
+    - configure-users
+    - sec-conf
+    - app-conf
+- name: Configure podman/Create container user
+  hosts: podman
+  become: true
+  roles:
+    - podman

@@ -1,0 +1,28 @@
+- name: Prepare Podman Container hosts
+  become: true
+  block:
+    - name: Install Podman
+      ansible.builtin.dnf:
+        name:
+          - podman
+          - buildah
+          - skopeo
+        state: present
+    - name: Create container group
+      ansible.builtin.group:
+        name: container
+        state: present
+        gid: 1020
+    - name: Create container user
+      ansible.builtin.user:
+        name: container
+        comment: "Container user for rootless containers"
+        shell: /bin/bash
+        create_home: true
+        uid: 1020
+        group: container
+        groups: homelab
+        append: true
+        state: present
+    - name: Enable linger for container user
+      ansible.builtin.command: loginctl enable-linger container

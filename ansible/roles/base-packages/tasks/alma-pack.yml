@@ -1,0 +1,22 @@
+- name: Install Common Packages
+  block:
+    - name: Enable EPEL
+      become: true
+      ansible.builtin.dnf:
+        name:
+          - epel-release
+        state: present
+    - name: Update DNF Cache
+      become: true
+      ansible.builtin.dnf:
+        update_cache: true
+    - name: Install Packages
+      become: true
+      ansible.builtin.dnf:
+        name:
+          - git
+          - curl
+          - wget
+          - fastfetch
+          - neovim
+        state: present

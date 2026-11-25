@@ -1,0 +1,6 @@
+- name: Install Common Packages for RHEL
+  ansible.builtin.include_tasks: rhel-pack.yml
+  when: ansible_facts["distribution"]|lower == "redhat"
+- name: Install Common Packages for AlmaLinux
+  ansible.builtin.include_tasks: alma-pack.yml
+  when: ansible_facts["distribution"]|lower == "almalinux"

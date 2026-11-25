@@ -1,0 +1,16 @@
+- name: Configure security defaults
+  block:
+    - name: Configure SSH
+      ansible.builtin.template:
+        src: 99-hardening.conf.j2
+        dest: /etc/ssh/sshd_config.d/99-hardening.conf
+        owner: root
+        group: root
+        mode: "0644"
+        validate: /usr/sbin/sshd -t -f %s
+      notify: Restart SSH
+    - name: Remove root authorized SSH key
+      ansible.posix.authorized_key:
+        user: root
+        state: absent
+        key: "{{ lookup('file', 'keys/ansible_key.pub') }}"

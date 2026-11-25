@@ -1,0 +1,34 @@
+- name: Create ben user and homelab group
+  become: true
+  block:
+    - name: Load secrets
+      ansible.builtin.include_vars:
+        file: vars/secrets.yml
+    - name: Create Homelab group
+      ansible.builtin.group:
+        name: homelab
+        state: present
+        gid: 1500
+    - name: Create ben group
+      ansible.builtin.group:
+        name: ben
+        state: present
+        gid: 1010
+    - name: Create user ben
+      ansible.builtin.user:
+        name: ben
+        create_home: true
+        home: /home/ben
+        shell: /bin/bash
+        comment: "Ben Guerrero"
+        password: "{{ ben_password }}"
+        uid: 1010
+        group: ben
+        groups: homelab,wheel
+        append: true
+        state: present
+    - name: Add SSH key for ben
+      ansible.posix.authorized_key:
+        user: ben
+        state: present
+        key: "{{ ben_ssh_key }}"

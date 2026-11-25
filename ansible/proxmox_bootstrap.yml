@@ -1,0 +1,60 @@
+---
+- name: Bootstrap Proxmox Servers
+  hosts: proxmox
+  remote_user: root
+  gather_facts: true
+  tasks:
+    - name: Configure Update Repositories/Packages
+      block:
+        - name: Remove Enterprise Repository
+          ansible.builtin.deb822_repository:
+            name: pve-enterprise
+            types: deb
+            uris: https://enterprise.proxmox.com/debian/pve
+            suites: trixie
+            components: pve-enterprise
+            signed_by: /usr/share/keyrings/proxmox-archive-keyring.gpg
+            state: absent
+        - name: Add No-Subscription Repository
+          ansible.builtin.deb822_repository:
+            name: proxmox
+            types: deb
+            uris: http://download.proxmox.com/debian/pve
+            suites: trixie
+            components: pve-no-subscription
+            signed_by: /usr/share/keyrings/proxmox-archive-keyring.gpg
+            enabled: true
+        - name: Remove Ceph Enterprise Repository
+          ansible.builtin.deb822_repository:
+            name: ceph
+            types: deb
+            uris: https://enterprise.proxmox.com/debian/ceph-squid
+            suites: trixie
+            components: enterprise
+            signed_by: /usr/share/keyrings/proxmox-archive-keyring.gpg
+            state: absent
+        - name: Update Package Cache and Upgrade Packages
+          ansible.builtin.apt:
+            update_cache: true
+            upgrade: full
+        - name: Installs Common Packages
+          ansible.builtin.apt:
+            pkg:
+              - fastfetch
+              - neovim
+            state: present
+    - name: Configure PCIe Passthrough and Reboot if Necessary
+      block:
+        - name: Load Kernel Modules
+          ansible.builtin.copy:
+            src: files/vfio.conf
+            dest: /etc/modules-load.d/vfio.conf
+            force: false
+          register: vfio_conf
+        - name: Update InitRAMFS if Kernel Modules were changed
+          ansible.builtin.command: update-initramfs -u -k all
+          when: vfio_conf.changed
+        - name: Reboot if InitRAMFS was Updated
+          ansible.builtin.reboot:
+            msg: "Rebooting hosts"
+          when: vfio_conf.changed
